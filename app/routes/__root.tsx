@@ -2,16 +2,35 @@
 import type { ReactNode } from 'react'
 import {
   Outlet,
-  createRootRoute,
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouteContext,
 } from '@tanstack/react-router'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
 import { QueryClient } from '@tanstack/react-query'
+import { ConvexReactClient } from 'convex/react'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexProviderWithClerk } from 'convex/react-clerk'
+import { createServerFn } from '@tanstack/react-start'
+import { getAuth } from '@clerk/tanstack-react-start/server'
+import { getWebRequest } from '@tanstack/react-start/server'
+
+const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const auth = await getAuth(getWebRequest() as Request)
+  const token = await auth.getToken({ template: 'convex' })
+
+  return {
+    userId: auth.userId,
+    token,
+  }
+})
+
 
 export const Route = createRootRouteWithContext<{
   queryClient:QueryClient;
+  convexClient: ConvexReactClient
+  convexQueryClient: ConvexQueryClient
 }>()({
   head: () => ({
     meta: [
@@ -26,21 +45,47 @@ export const Route = createRootRouteWithContext<{
         title: 'TanStack Start Starter',
       },
     ],
-  }),
+  }),beforeLoad: async (ctx) => {
+    const auth = await fetchClerkAuth()
+    const { userId, token } = auth
+
+    // During SSR only (the only time serverHttpClient exists),
+    // set the Clerk auth token to make HTTP queries with.
+    if (token) {
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    }
+
+    return {
+      userId,
+      token,
+    }
+  },
+  // errorComponent: (props) => {
+  //   return (
+  //     <RootDocument>
+  //       <DefaultCatchBoundary {...props} />
+  //     </RootDocument>
+  //   )
+  // },
+  // notFoundComponent: () => <NotFound />,
   component: RootComponent,
 })
 
 function RootComponent() {
+  const context = useRouteContext({ from: Route.id })
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <ClerkProvider>
+      <ConvexProviderWithClerk client={context.convexClient} useAuth={useAuth}>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   )
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-   <ClerkProvider>
      <html>
       <head>
         <HeadContent />
@@ -50,6 +95,5 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
-   </ClerkProvider>
   )
 }
