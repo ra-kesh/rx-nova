@@ -5,10 +5,14 @@ import {
   createRootRoute,
   HeadContent,
   Scripts,
+  createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { QueryClient } from '@tanstack/react-query'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient:QueryClient;
+}>()({
   head: () => ({
     meta: [
       {

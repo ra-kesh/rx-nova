@@ -22,3 +22,5 @@ yarn.lock
 /playwright/.cache/
 
 count.txt
+
+.env.local

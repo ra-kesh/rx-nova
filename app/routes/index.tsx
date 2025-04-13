@@ -5,40 +5,51 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
-} from '@clerk/tanstack-react-start'
-import { getAuth } from '@clerk/tanstack-react-start/server'
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { getWebRequest } from '@tanstack/react-start/server'
+} from "@clerk/tanstack-react-start";
+import { getAuth } from "@clerk/tanstack-react-start/server";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { getWebRequest } from "@tanstack/react-start/server";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "../../convex/_generated/api";
 
-const authStateFn = createServerFn({ method: 'GET' }).handler(async () => {
-  const request = getWebRequest()
-  if (!request) throw new Error('No request found')
-  const { userId } = await getAuth(request)
+const authStateFn = createServerFn({ method: "GET" }).handler(async () => {
+  const request = getWebRequest();
+  if (!request) throw new Error("No request found");
+  const { userId } = await getAuth(request);
 
   if (!userId) {
-   
     throw redirect({
-      to: '/sign-in/$',
-    })
+      to: "/sign-in/$",
+    });
   }
 
-  return { userId }
-})
+  return { userId };
+});
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: Home,
   beforeLoad: async () => await authStateFn(),
   loader: async ({ context }) => {
-    return { userId: context.userId }
+    return { userId: context.userId };
   },
-})
+});
 
 function Home() {
-  const state = Route.useLoaderData()
+  const state = Route.useLoaderData();
+  const { data } = useSuspenseQuery(convexQuery(api.tasks.get, {}));
   return (
     <div>
       <h1>Welcome! Your ID is {state.userId}!</h1>
+
+
+      <div>
+      {data.map(({ _id, text }) => (
+        <div key={_id}>{text}</div>
+      ))}
+    </div>
+
       <SignedIn>
         <p>You are signed in</p>
 
@@ -54,5 +65,5 @@ function Home() {
         <SignUpButton />
       </SignedOut>
     </div>
-  )
+  );
 }
