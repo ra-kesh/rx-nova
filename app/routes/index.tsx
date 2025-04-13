@@ -1,48 +1,58 @@
-// app/routes/index.tsx
-import * as fs from 'node:fs'
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import {
+  SignedIn,
+  UserButton,
+  SignOutButton,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+} from '@clerk/tanstack-react-start'
+import { getAuth } from '@clerk/tanstack-react-start/server'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { getWebRequest } from '@tanstack/react-start/server'
 
-const filePath = 'count.txt'
+const authStateFn = createServerFn({ method: 'GET' }).handler(async () => {
+  const request = getWebRequest()
+  if (!request) throw new Error('No request found')
+  const { userId } = await getAuth(request)
 
-async function readCount() {
-  return parseInt(
-    await fs.promises.readFile(filePath, 'utf-8').catch(() => '0'),
-  )
-}
+  if (!userId) {
+   
+    throw redirect({
+      to: '/sign-in/$',
+    })
+  }
 
-const getCount = createServerFn({
-  method: 'GET',
-}).handler(() => {
-  return readCount()
+  return { userId }
 })
-
-const updateCount = createServerFn({ method: 'POST' })
-  .validator((d: number) => d)
-  .handler(async ({ data }) => {
-    const count = await readCount()
-    await fs.promises.writeFile(filePath, `${count + data}`)
-  })
 
 export const Route = createFileRoute('/')({
   component: Home,
-  loader: async () => await getCount(),
+  beforeLoad: async () => await authStateFn(),
+  loader: async ({ context }) => {
+    return { userId: context.userId }
+  },
 })
 
 function Home() {
-  const router = useRouter()
   const state = Route.useLoaderData()
-
   return (
-    <button
-      type="button"
-      onClick={() => {
-        updateCount({ data: 1 }).then(() => {
-          router.invalidate()
-        })
-      }}
-    >
-      Add 1 to {state}?
-    </button>
+    <div>
+      <h1>Welcome! Your ID is {state.userId}!</h1>
+      <SignedIn>
+        <p>You are signed in</p>
+
+        <UserButton />
+
+        <SignOutButton />
+      </SignedIn>
+      <SignedOut>
+        <p>You are signed out</p>
+
+        <SignInButton />
+
+        <SignUpButton />
+      </SignedOut>
+    </div>
   )
 }

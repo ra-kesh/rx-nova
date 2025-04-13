@@ -6,6 +6,7 @@ import {
   HeadContent,
   Scripts,
 } from '@tanstack/react-router'
+import { ClerkProvider } from '@clerk/tanstack-react-start'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,7 +36,8 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+   <ClerkProvider>
+     <html>
       <head>
         <HeadContent />
       </head>
@@ -44,5 +46,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
+   </ClerkProvider>
   )
 }
