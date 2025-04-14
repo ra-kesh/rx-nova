@@ -16,6 +16,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { getAuth } from '@clerk/tanstack-react-start/server'
 import { getWebRequest } from '@tanstack/react-start/server'
 
+import appCss from "@/styles/app.css?url"
+
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const auth = await getAuth(getWebRequest() as Request)
   const token = await auth.getToken({ template: 'convex' })
@@ -43,6 +45,11 @@ export const Route = createRootRouteWithContext<{
       },
       {
         title: 'TanStack Start Starter',
+      },
+    ],links: [
+      {
+        rel: "stylesheet",
+        href: appCss,
       },
     ],
   }),beforeLoad: async (ctx) => {
