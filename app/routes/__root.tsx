@@ -17,6 +17,7 @@ import { getAuth } from "@clerk/tanstack-react-start/server";
 import { getWebRequest } from "@tanstack/react-start/server";
 
 import appCss from "@/styles/app.css?url";
+import { BaseLayout } from "@/components/layout/base-layout";
 
 const fetchClerkAuth = createServerFn({ method: "GET" }).handler(async () => {
   const auth = await getAuth(getWebRequest() as Request);
@@ -94,12 +95,12 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
-        {children}
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <BaseLayout className="">{children}</BaseLayout>
         <Scripts />
       </body>
     </html>
