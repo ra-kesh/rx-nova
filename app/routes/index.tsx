@@ -1,31 +1,19 @@
-import {
-  SignedIn,
-  UserButton,
-  SignOutButton,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  useAuth,
-} from "@clerk/tanstack-react-start";
+
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
-import { api } from "../../convex/_generated/api";
-import { Button } from "@/components/ui/button";
+
 
 import { ProductGrid } from "@/components/products/product-grid";
-import { ProductFilters } from "@/components/products/product-filters";
 import { Container } from "@/components/ui/Container";
 
 export const Route = createFileRoute("/")({
   component: Home,
-  beforeLoad: async ({ context }) => {
-    if (!context.userId) {
-      throw redirect({
-        to: "/sign-in/$",
-      });
-    }
-  },
+  // beforeLoad: async ({ context }) => {
+  //   if (!context.userId) {
+  //     throw redirect({
+  //       to: "/sign-in/$",
+  //     });
+  //   }
+  // },
 });
 
 // Temporary mock data - will be replaced with Convex data later
