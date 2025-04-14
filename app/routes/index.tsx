@@ -11,6 +11,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../convex/_generated/api";
+import { Button } from "@/components/ui/button";
 
 
 export const Route = createFileRoute("/")({
@@ -42,6 +43,8 @@ function Home() {
         <div key={_id}>{text}</div>
       ))}
     </div>
+
+    <Button>Click me</Button>
 
       <SignedIn>
         <p>You are signed in</p>
