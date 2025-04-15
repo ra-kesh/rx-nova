@@ -173,7 +173,7 @@ export function CartPopover() {
                                   : "Single unit"}
                               </span>
                               <span className="mx-2">•</span>
-                              <span>₹{itemTotal.toLocaleString("en-IN")}</span>
+                              <span>${itemTotal.toLocaleString("en-IN")}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
@@ -237,18 +237,18 @@ export function CartPopover() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <motion.span key={totalAmount}>
-                      ₹{totalAmount.toLocaleString("en-IN")}
+                      ${totalAmount.toLocaleString("en-IN")}
                     </motion.span>
                   </div>
                   <div className="flex items-center justify-between font-medium">
                     <span>Total</span>
                     <motion.span key={totalAmount}>
-                      ₹{totalAmount.toLocaleString("en-IN")}
+                      ${totalAmount.toLocaleString("en-IN")}
                     </motion.span>
                   </div>
                 </div>
                 <Button className="w-full" size="lg">
-                  Proceed to Checkout
+                    Place Order
                 </Button>
               </motion.div>
             </>
