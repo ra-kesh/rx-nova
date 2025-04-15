@@ -8,14 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Search } from "lucide-react";
+
+import { Search } from "lucide-react";
 
 interface DataTableProps<T> {
   data: T[];
@@ -52,7 +46,7 @@ export function DataTable<T extends { _id: string }>({
     <div className="space-y-4">
       {searchable && (
         <div className="flex items-center gap-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
+          {/* <Search className="h-4 w-4 text-muted-foreground" /> */}
           <Input
             placeholder="Search..."
             value={searchQuery}

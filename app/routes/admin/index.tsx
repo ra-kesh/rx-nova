@@ -12,7 +12,16 @@ import {
   Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal, Pencil, Power } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DataTable } from "@/components/ui/data-table";
+import { Link } from "@tanstack/react-router";
+import { ProductColumns } from "@/components/ui/data-table/product-column";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -30,6 +39,7 @@ function AdminDashboard() {
     revenue: 145750,
   };
 
+  
   if (!products) return <div>Loading...</div>;
 
   return (
@@ -112,59 +122,52 @@ function AdminDashboard() {
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="issues">Issues</TabsTrigger>
           </TabsList>
-
           <TabsContent value="products" className="space-y-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Products</CardTitle>
-                <Button variant="outline" size="sm">
+               <Link to="/admin/create">
+               <Button variant="outline" size="sm">
                   Add Product
-                </Button>
+                </Button></Link>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {products.map((product) => (
-                    <div
-                      key={product._id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{product.name}</h4>
-                          <Badge
-                            variant={product.isActive ? "default" : "secondary"}
-                          >
-                            {product.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {product.description}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <span>₹{product.pricePerUnit}/unit</span>
-                          <span>{product.itemsPerBox} items/box</span>
-                        </div>
-                      </div>
-                      <Button
-                        variant={product.isActive ? "secondary" : "default"}
-                        size="sm"
-                        onClick={() =>
-                          updateProduct({
-                            id: product._id,
-                            ...product,
-                            isActive: !product.isActive,
-                          })
-                        }
-                      >
-                        {product.isActive ? "Deactivate" : "Activate"}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <DataTable
+                  data={products || []}
+                  columns={ProductColumns}
+                  searchable
+                  searchKeys={["name", "description"]}
+                  actions={(product) => (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                       
+                        <DropdownMenuItem
+                          onClick={() =>
+                            updateProduct({
+                              id: product._id,
+                              name: product.name,
+                              description: product.description,
+                              pricePerUnit: product.pricePerUnit,
+                              itemsPerBox: product.itemsPerBox,
+                              isActive: !product.isActive,
+                            })
+                          }
+                        >
+                          <Power className="mr-2 h-4 w-4" />
+                          {product.isActive ? "Deactivate" : "Activate"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                />
               </CardContent>
             </Card>
           </TabsContent>
-
           <TabsContent value="orders">
             <Card>
               <CardHeader>
@@ -176,7 +179,6 @@ function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-
           <TabsContent value="issues">
             <Card>
               <CardHeader>
