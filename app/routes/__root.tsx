@@ -15,10 +15,12 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { createServerFn } from "@tanstack/react-start";
 import { getAuth } from "@clerk/tanstack-react-start/server";
 import { getWebRequest } from "@tanstack/react-start/server";
+import { NotFound } from "@/components/not-found";
 
 import appCss from "@/styles/app.css?url";
 import { BaseLayout } from "@/components/layout/base-layout";
 import { Toaster } from "sonner";
+import { DefaultCatchBoundary } from "@/components/default-catch-boundary";
 
 const fetchClerkAuth = createServerFn({ method: "GET" }).handler(async () => {
   const auth = await getAuth(getWebRequest() as Request);
@@ -70,14 +72,17 @@ export const Route = createRootRouteWithContext<{
       token,
     };
   },
-  // errorComponent: (props) => {
-  //   return (
-  //     <RootDocument>
-  //       <DefaultCatchBoundary {...props} />
-  //     </RootDocument>
-  //   )
-  // },
-  // notFoundComponent: () => <NotFound />,
+  errorComponent: (props) => {
+    return (
+
+      <RootDocument>
+        <DefaultCatchBoundary {...props} />
+      </RootDocument>
+      
+    );
+  },
+  notFoundComponent: () => <NotFound />,
+
   component: RootComponent,
 });
 

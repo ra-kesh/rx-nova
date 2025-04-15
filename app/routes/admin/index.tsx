@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { Container } from "@/components/ui/Container";
@@ -24,6 +24,13 @@ import { Link } from "@tanstack/react-router";
 import { ProductColumns } from "@/components/ui/data-table/product-column";
 
 export const Route = createFileRoute("/admin/")({
+  beforeLoad: async ({ context }) => {
+    const isAdmin = await context.convexClient.query(api.auth.isAdmin, {});
+    
+    if (!isAdmin) {
+      throw redirect({ to: "/not-authorized" });
+    }
+  },
   component: AdminDashboard,
 });
 
@@ -39,8 +46,7 @@ function AdminDashboard() {
     revenue: 145750,
   };
 
-  
-  if (!products) return <div>Loading...</div>;
+  if (!products) return <Container>Loading...</Container>;
 
   return (
     <Container className="py-8">
@@ -126,10 +132,11 @@ function AdminDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Products</CardTitle>
-               <Link to="/admin/create">
-               <Button variant="outline" size="sm">
-                  Add Product
-                </Button></Link>
+                <Link to="/admin/create">
+                  <Button variant="outline" size="sm">
+                    Add Product
+                  </Button>
+                </Link>
               </CardHeader>
               <CardContent>
                 <DataTable
@@ -145,7 +152,6 @@ function AdminDashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                       
                         <DropdownMenuItem
                           onClick={() =>
                             updateProduct({
