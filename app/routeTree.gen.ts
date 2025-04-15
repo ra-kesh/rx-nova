@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as OrdersImport } from './routes/orders'
 import { Route as IndexImport } from './routes/index'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as SignUpSplatImport } from './routes/sign-up.$'
@@ -18,6 +19,12 @@ import { Route as SignInSplatImport } from './routes/sign-in.$'
 import { Route as AdminCreateImport } from './routes/admin/create'
 
 // Create/Update Routes
+
+const OrdersRoute = OrdersImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -60,6 +67,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersImport
+      parentRoute: typeof rootRoute
+    }
     '/admin/create': {
       id: '/admin/create'
       path: '/admin/create'
@@ -95,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/orders': typeof OrdersRoute
   '/admin/create': typeof AdminCreateRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -103,6 +118,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/orders': typeof OrdersRoute
   '/admin/create': typeof AdminCreateRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -112,6 +128,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/orders': typeof OrdersRoute
   '/admin/create': typeof AdminCreateRoute
   '/sign-in/$': typeof SignInSplatRoute
   '/sign-up/$': typeof SignUpSplatRoute
@@ -120,12 +137,19 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/create' | '/sign-in/$' | '/sign-up/$' | '/admin'
+  fullPaths:
+    | '/'
+    | '/orders'
+    | '/admin/create'
+    | '/sign-in/$'
+    | '/sign-up/$'
+    | '/admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/create' | '/sign-in/$' | '/sign-up/$' | '/admin'
+  to: '/' | '/orders' | '/admin/create' | '/sign-in/$' | '/sign-up/$' | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/orders'
     | '/admin/create'
     | '/sign-in/$'
     | '/sign-up/$'
@@ -135,6 +159,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OrdersRoute: typeof OrdersRoute
   AdminCreateRoute: typeof AdminCreateRoute
   SignInSplatRoute: typeof SignInSplatRoute
   SignUpSplatRoute: typeof SignUpSplatRoute
@@ -143,6 +168,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OrdersRoute: OrdersRoute,
   AdminCreateRoute: AdminCreateRoute,
   SignInSplatRoute: SignInSplatRoute,
   SignUpSplatRoute: SignUpSplatRoute,
@@ -160,6 +186,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/orders",
         "/admin/create",
         "/sign-in/$",
         "/sign-up/$",
@@ -168,6 +195,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/orders": {
+      "filePath": "orders.tsx"
     },
     "/admin/create": {
       "filePath": "admin/create.tsx"
