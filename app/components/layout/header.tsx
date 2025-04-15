@@ -2,6 +2,7 @@ import { UserButton } from "@clerk/tanstack-react-start";
 import { MainNav } from "./main-nav";
 import { Link } from "@tanstack/react-router";
 import { Container } from "../ui/Container";
+import { CartPopover } from "../cart/cart-popover";
 
 export function Header() {
   return (
@@ -14,6 +15,7 @@ export function Header() {
           <MainNav />
         </div>
         <div className="flex items-center gap-4">
+          <CartPopover />
           <UserButton />
         </div>
       </Container>

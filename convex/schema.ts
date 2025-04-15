@@ -40,6 +40,18 @@ const applicationTables = {
     ),
     createdAt: v.number(),
   }).index("by_order", ["orderId"]),
+
+
+  cart: defineTable({
+    userId: v.string(),
+    items: v.array(
+      v.object({
+        productId: v.id("products"),
+        quantity: v.number(),
+        isBox: v.boolean(),
+      })
+    ),
+  }).index("by_user", ["userId"]),
 };
 
 export default defineSchema({

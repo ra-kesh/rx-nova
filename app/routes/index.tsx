@@ -1,43 +1,24 @@
-
 import { createFileRoute, redirect } from "@tanstack/react-router";
-
-
+import { api } from "convex/_generated/api";
+import { useQuery } from "convex/react";
 import { ProductGrid } from "@/components/products/product-grid";
 import { Container } from "@/components/ui/Container";
 
 export const Route = createFileRoute("/")({
   component: Home,
-  // beforeLoad: async ({ context }) => {
-  //   if (!context.userId) {
-  //     throw redirect({
-  //       to: "/sign-in/$",
-  //     });
-  //   }
-  // },
 });
 
-// Temporary mock data - will be replaced with Convex data later
-const mockProducts = [
-  {
-    id: "1",
-    name: "Paracetamol 500mg",
-    description: "Pain relief and fever reduction tablets",
-    unitPrice: 0.5,
-    boxPrice: 12.0,
-    itemsPerBox: 30,
-  },
-  {
-    id: "2",
-    name: "Vitamin C 1000mg",
-    description: "Immune system support supplements",
-    unitPrice: 0.75,
-    boxPrice: 18.0,
-    itemsPerBox: 30,
-  },
-  // Add more mock products as needed
-];
-
 function Home() {
+  const products = useQuery(api.products.list);
+
+  if (!products) {
+    return (
+      <Container>
+        <div>Loading...</div>
+      </Container>
+    );
+  }
+
   return (
     <Container className="space-y-8">
       <div className="flex items-center justify-between">
@@ -50,11 +31,17 @@ function Home() {
       </div>
 
       <div className="flex flex-col gap-6 md:flex-row">
-        {/* <div className="w-full md:w-[200px] lg:w-[280px]">
-          <ProductFilters />
-        </div> */}
         <div className="flex-1">
-          <ProductGrid products={mockProducts} />
+          <ProductGrid
+            products={products.map((product) => ({
+              id: product._id,
+              name: product.name,
+              description: product.description,
+              unitPrice: product.pricePerUnit,
+              boxPrice: product.pricePerUnit * product.itemsPerBox,
+              itemsPerBox: product.itemsPerBox,
+            }))}
+          />
         </div>
       </div>
     </Container>

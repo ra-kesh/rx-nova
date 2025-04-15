@@ -1,10 +1,11 @@
-import { Link } from "@tanstack/react-router"
-import { cn } from "@/lib/utils"
+import { Link } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
+import { CartPopover } from "@/components/cart/cart-popover";
 
 interface NavItem {
-  title: string
-  href: string
-  description?: string
+  title: string;
+  href: string;
+  description?: string;
 }
 
 export function MainNav({
@@ -23,13 +24,12 @@ export function MainNav({
       href: "/orders",
       description: "View your order history",
     },
-    {
-      title: "Cart",
-      href: "/Cart",
-      description: "View your cart items",
-    },
-    
-  ]
+    // {
+    //   title: "Cart",
+    //   href: "/Cart",
+    //   description: "View your cart items",
+    // },
+  ];
 
   return (
     <nav
@@ -49,5 +49,5 @@ export function MainNav({
         </Link>
       ))}
     </nav>
-  )
+  );
 }

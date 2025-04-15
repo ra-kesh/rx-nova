@@ -1,8 +1,9 @@
+import { Id } from "convex/_generated/dataModel"
 import { ProductCard } from "./product-card"
 
 interface ProductGridProps {
   products: Array<{
-    id: string
+    id: Id<"products">,
     name: string
     description: string
     unitPrice: number
