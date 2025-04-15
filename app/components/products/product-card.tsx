@@ -14,7 +14,6 @@ import { api } from "convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import { toast } from "sonner";
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 interface ProductCardProps {
   id: Id<"products">;

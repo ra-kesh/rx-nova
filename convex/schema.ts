@@ -11,7 +11,7 @@ const applicationTables = {
   }),
   
   orders: defineTable({
-    userId: v.id("users"),
+    userId: v.string(),
     status: v.union(
       v.literal("pending"),
       v.literal("in_progress"),
@@ -31,7 +31,7 @@ const applicationTables = {
 
   issues: defineTable({
     orderId: v.id("orders"),
-    userId: v.id("users"),
+    userId: v.string(),
     description: v.string(),
     status: v.union(
       v.literal("open"),

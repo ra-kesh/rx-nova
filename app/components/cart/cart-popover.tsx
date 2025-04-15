@@ -16,10 +16,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function CartPopover() {
   const [isUpdating, setIsUpdating] = React.useState<string | null>(null);
+  const [isSubmittingOrder, setIsSubmittingOrder] = React.useState(false);
   const cartItems = useQuery(api.cart.get) || [];
   const products = useQuery(api.products.list);
   const updateCart = useMutation(api.cart.update);
   const clearCart = useMutation(api.cart.clear);
+  const createOrder = useMutation(api.orders.create);
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalAmount = cartItems.reduce((acc, item) => {
@@ -72,6 +74,23 @@ export function CartPopover() {
       toast.error("Failed to update quantity");
     } finally {
       setIsUpdating(null);
+    }
+  };
+
+  const handleSubmitOrder = async () => {
+    if (cartItems.length === 0) return;
+    setIsSubmittingOrder(true);
+    try {
+      await createOrder({ 
+        items: cartItems,
+        totalAmount
+      });
+      await clearCart();
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      toast.error("Failed to place order. Please try again.");
+    } finally {
+      setIsSubmittingOrder(false);
     }
   };
 
@@ -247,8 +266,20 @@ export function CartPopover() {
                     </motion.span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg">
-                  Place Order
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  onClick={handleSubmitOrder}
+                  disabled={isSubmittingOrder || cartItems.length === 0}
+                >
+                  {isSubmittingOrder ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Placing Order...
+                    </>
+                  ) : (
+                    "Place Order"
+                  )}
                 </Button>
               </motion.div>
             </>
