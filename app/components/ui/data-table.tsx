@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 
-import { Search } from "lucide-react";
-
 interface DataTableProps<T> {
   data: T[];
   columns: {
@@ -37,7 +35,9 @@ export function DataTable<T extends { _id: string }>({
 
     return data.filter((item) =>
       searchKeys.some((key) =>
-        String(item[key]).toLowerCase().includes(searchQuery.toLowerCase())
+        String(item[key] || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
       )
     );
   }, [data, searchQuery, searchKeys]);
@@ -46,7 +46,6 @@ export function DataTable<T extends { _id: string }>({
     <div className="space-y-4">
       {searchable && (
         <div className="flex items-center gap-2">
-          {/* <Search className="h-4 w-4 text-muted-foreground" /> */}
           <Input
             placeholder="Search..."
             value={searchQuery}
@@ -75,7 +74,7 @@ export function DataTable<T extends { _id: string }>({
                   <TableCell key={String(column.accessorKey)}>
                     {column.cell
                       ? column.cell(item)
-                      : String(item[column.accessorKey])}
+                      : String(item[column.accessorKey] || "")}
                   </TableCell>
                 ))}
                 {actions && <TableCell>{actions(item)}</TableCell>}

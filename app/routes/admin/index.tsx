@@ -9,7 +9,7 @@ import {
   ShoppingCart,
   AlertCircle,
   IndianRupee,
-  Activity,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Power } from "lucide-react";
@@ -22,11 +22,19 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { Link } from "@tanstack/react-router";
 import { ProductColumns } from "@/components/ui/data-table/product-column";
+import { OrderColumns } from "@/components/ui/data-table/order-columns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/admin/")({
   beforeLoad: async ({ context }) => {
     const isAdmin = await context.convexClient.query(api.auth.isAdmin, {});
-    
+
     if (!isAdmin) {
       throw redirect({ to: "/not-authorized" });
     }
@@ -36,7 +44,11 @@ export const Route = createFileRoute("/admin/")({
 
 function AdminDashboard() {
   const products = useQuery(api.products.list);
+  const orders = useQuery(api.orders.list);
+  const updateOrderStatus = useMutation(api.orders.updateStatus);
   const updateProduct = useMutation(api.products.update);
+
+  console.log({ orders });
 
   // Mock data - replace with actual queries
   const stats = {
@@ -180,8 +192,45 @@ function AdminDashboard() {
                 <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Order list implementation */}
-                <p className="text-muted-foreground">No orders to display</p>
+                <DataTable
+                  data={orders || []}
+                  columns={
+                    OrderColumns as Array<{
+                      header: string;
+                      accessorKey:
+                        | "userId"
+                        | "status"
+                        | "items"
+                        | "totalAmount"
+                        | "createdAt"
+                        | "_creationTime"
+                        | "_id";
+                    }>
+                  }
+                  searchable
+                  searchKeys={["userId", "_id"]}
+                  actions={(order) => (
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => {
+                        updateOrderStatus({
+                          orderId: order._id,
+                          status: value as any,
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </CardContent>
             </Card>
           </TabsContent>
