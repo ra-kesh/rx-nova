@@ -9,7 +9,7 @@ export const list = query({
     if (!identity || !identity.isAdmin) {
       throw new Error("Unauthorized: Only admins can view all orders");
     }
-    const allOrders = await ctx.db.query("orders").collect();
+    const allOrders = await ctx.db.query("orders").order("desc").collect();
 
     return allOrders;
   },
@@ -27,11 +27,11 @@ export const listByUser = query({
     const orders = await ctx.db
       .query("orders")
       .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
       .collect();
 
     const ordersWithProducts = await Promise.all(
       orders.map(async (order) => {
-        // Fetch product details for each item
         const itemsWithProducts = await Promise.all(
           order.items.map(async (item) => {
             const product = await ctx.db.get(item.productId);
@@ -45,9 +45,13 @@ export const listByUser = query({
                     pricePerUnit: product.pricePerUnit,
                     itemsPerBox: product.itemsPerBox,
                     isActive: product.isActive,
-                    totalPrice: item.quantity * product.pricePerUnit,
+                    totalPrice: item.isBox
+                      ? item.quantity *
+                        product.pricePerUnit *
+                        product.itemsPerBox
+                      : item.quantity * product.pricePerUnit,
                   }
-                : null, // Handle case where product is deleted
+                : null,
             };
           })
         );

@@ -82,11 +82,11 @@ export function OrderCard({ order }) {
                 ))}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t">
+              <div className="flex items-center  pt-4 border-t">
                 {order.status === "completed" && !order.issues?.length && (
                   <ReportIssueDialog orderId={order._id} />
                 )}
-                <div className="text-lg font-semibold">
+                <div className="text-lg font-semibold ml-auto">
                   Total: ₹{order.totalAmount.toLocaleString("en-IN")}
                 </div>
               </div>
