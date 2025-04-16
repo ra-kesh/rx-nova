@@ -6,11 +6,26 @@ import { OrderCard } from "@/components/orders/order-card";
 import { OrderStats } from "@/components/orders/order-stats";
 
 export const Route = createFileRoute("/orders")({
+  beforeLoad: ({ context }) => {
+    if (!context.userId) {
+      throw redirect({
+        to: "/sign-in/$",
+      });
+    }
+  },
   component: OrdersPage,
 });
 
 function OrdersPage() {
   const orders = useQuery(api.orders.listByUser);
+
+  if (!orders) {
+    return (
+      <Container>
+        <div>Loading...</div>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-8 space-y-8">
