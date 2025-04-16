@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Package, Pill, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/create")({
   component: CreateProduct,
@@ -44,8 +45,10 @@ function CreateProduct() {
         pricePerUnit: "",
         itemsPerBox: "",
       });
+      toast.success("Product added successfully");
     } catch (err) {
       setError("Failed to create product. Please try again.");
+      toast.error("Failed to add product");
     } finally {
       setIsSubmitting(false);
     }
