@@ -5,11 +5,12 @@ import { Clock, CheckCircle, AlertCircle, TrendingUp } from "lucide-react";
 
 export function OrderStats() {
   const orders = useQuery(api.orders.listByUser);
+  const issues = useQuery(api.issues.listByUser);
 
   const stats = {
     pending: orders?.filter((o) => o.status === "pending").length || 0,
     completed: orders?.filter((o) => o.status === "completed").length || 0,
-    issues: orders?.filter((o) => o.status === "cancelled").length || 0,
+    issues: issues?.length || 0,
     total: orders?.reduce((acc, order) => acc + order.totalAmount, 0) || 0,
   };
 

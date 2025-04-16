@@ -20,9 +20,9 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return []; 
+    if (!identity) return [];
 
-    const userId = identity.subject; 
+    const userId = identity.subject;
 
     if (!userId) throw new Error("Not authenticated");
 
@@ -30,7 +30,8 @@ export const create = mutation({
 
     if (!order) throw new Error("Order not found");
     if (order.userId !== userId) throw new Error("Not authorized");
-    if (order.status !== "completed") throw new Error("Can only report issues for completed orders");
+    if (order.status !== "completed")
+      throw new Error("Can only report issues for completed orders");
 
     return await ctx.db.insert("issues", {
       orderId: args.orderId,
@@ -48,9 +49,9 @@ export const listByOrder = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return []; 
+    if (!identity) return [];
 
-    const userId = identity.subject; 
+    const userId = identity.subject;
 
     if (!userId) throw new Error("Not authenticated");
 
@@ -66,7 +67,22 @@ export const listByOrder = query({
   },
 });
 
+export const listByUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
 
+    const userId = identity.subject;
+    if (!userId) throw new Error("Not authenticated");
+
+    return await ctx.db
+      .query("issues")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .collect();
+  },
+});
 
 export const updateStatus = mutation({
   args: {

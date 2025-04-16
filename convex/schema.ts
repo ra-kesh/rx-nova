@@ -9,7 +9,7 @@ const applicationTables = {
     itemsPerBox: v.number(),
     isActive: v.boolean(),
   }),
-  
+
   orders: defineTable({
     userId: v.string(),
     status: v.union(
@@ -39,8 +39,9 @@ const applicationTables = {
       v.literal("resolved")
     ),
     createdAt: v.number(),
-  }).index("by_order", ["orderId"]),
-
+  })
+    .index("by_order", ["orderId"])
+    .index("by_user", ["userId"]),
 
   cart: defineTable({
     userId: v.string(),

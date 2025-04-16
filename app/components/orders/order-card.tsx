@@ -5,9 +5,16 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReportIssueDialog } from "./report-issue-dialog";
+import { ChevronRight, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { api } from "convex/_generated/api";
 
 export function OrderCard({ order }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isIssuesExpanded, setIsIssuesExpanded] = useState(false);
+
+  const orderIssues = useQuery(api.issues.listByOrder, { orderId: order._id });
 
   return (
     <Card className="overflow-hidden">
@@ -75,29 +82,82 @@ export function OrderCard({ order }) {
                 ))}
               </div>
 
-              {order.issues?.map((issue) => (
-                <div
-                  key={issue._id}
-                  className="bg-destructive/10 p-4 rounded-lg space-y-2"
-                >
-                  <h4 className="font-medium text-destructive">
-                    Reported Issue
-                  </h4>
-                  <p className="text-sm">{issue.description}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Reported on {format(issue._creationTime, "PPP")}
-                  </p>
-                </div>
-              ))}
-
               <div className="flex items-center justify-between pt-4 border-t">
-                <div className="text-lg font-semibold">
-                  Total: ₹{order.totalAmount.toLocaleString("en-IN")}
-                </div>
                 {order.status === "completed" && !order.issues?.length && (
                   <ReportIssueDialog orderId={order._id} />
                 )}
+                <div className="text-lg font-semibold">
+                  Total: ₹{order.totalAmount.toLocaleString("en-IN")}
+                </div>
               </div>
+              {(orderIssues?.length ?? 0) > 0 && (
+                <div className="border rounded-md">
+                  <div
+                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => setIsIssuesExpanded(!isIssuesExpanded)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        {orderIssues?.length}{" "}
+                        {orderIssues?.length === 1 ? "Issue" : "Issues"}{" "}
+                        Reported
+                      </span>
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        "h-4 w-4 text-muted-foreground transition-transform",
+                        isIssuesExpanded && "rotate-90"
+                      )}
+                    />
+                  </div>
+                  <AnimatePresence>
+                    {isIssuesExpanded && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: "auto" }}
+                        exit={{ height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t">
+                          {orderIssues?.map((issue, index) => (
+                            <div
+                              key={issue._id}
+                              className={cn(
+                                "p-4 space-y-2",
+                                index !== orderIssues?.length - 1 && "border-b"
+                              )}
+                            >
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium">
+                                  Issue #{issue._id.slice(-4)}
+                                </p>
+                                <Badge
+                                  variant={
+                                    issue.status === "resolved"
+                                      ? "success"
+                                      : "outline"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {issue.status}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {issue.description}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Reported on {format(issue._creationTime, "PPP")}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             </CardContent>
           </motion.div>
         )}
