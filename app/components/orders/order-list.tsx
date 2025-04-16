@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import {
   Card,
@@ -23,6 +23,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { Id } from "convex/_generated/dataModel";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface OrderListProps {
   status: "pending" | "completed" | "issues";
@@ -30,17 +33,31 @@ interface OrderListProps {
 
 export function OrderList({ status }: OrderListProps) {
   const orders = useQuery(api.orders.listByUser);
-  const [issueOrder, setIssueOrder] = React.useState<string | null>(null);
-  const [issueDescription, setIssueDescription] = React.useState("");
+  const [issueDescription, setIssueDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeOrderId, setActiveOrderId] = useState<Id<"orders"> | null>(null);
+  const createIssue = useMutation(api.issues.create);
 
-  console.log({orders})
+  const handleReportIssue = async (orderId: Id<"orders">) => {
+    try {
+      setIsSubmitting(true);
+      await createIssue({
+        orderId,
+        description: issueDescription,
+      });
+
+      toast.success("Issue reported successfully");
+      setIssueDescription("");
+      setActiveOrderId(null);
+    } catch (error) {
+      toast.error("Failed to report issue. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filteredOrders =
     orders?.filter((order) => order.status === status) || [];
-
-  const handleReportIssue = async (orderId: string) => {
-    // Implementation for reporting issues
-  };
 
   return (
     <div className="space-y-4">
@@ -84,19 +101,30 @@ export function OrderList({ status }: OrderListProps) {
                       <span>{item.product?.name}</span>
                       {item.isBox && <Badge variant="outline">Box</Badge>}
                     </div>
-                    <span>₹{item.product?.totalPrice.toLocaleString("en-IN")}</span>
+                    <span>
+                      ₹{item.product?.totalPrice.toLocaleString("en-IN")}
+                    </span>
                   </div>
                 ))}
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <div className="text-lg font-semibold ml-auto">
-                Total: ₹{order.totalAmount.toLocaleString("en-IN")}
-              </div>
+              <>
+              
               {status === "completed" && (
-                <Dialog>
+                <Dialog
+                  open={activeOrderId === order._id}
+                  onOpenChange={(open) => {
+                    if (!open) setActiveOrderId(null);
+                  }}
+                >
                   <DialogTrigger asChild>
-                    <Button variant="outline">Report Issue</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setActiveOrderId(order._id)}
+                    >
+                      Report Issue
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -110,18 +138,39 @@ export function OrderList({ status }: OrderListProps) {
                       onChange={(e) => setIssueDescription(e.target.value)}
                       placeholder="Describe your issue..."
                       className="min-h-[100px]"
+                      disabled={isSubmitting}
                     />
                     <DialogFooter>
                       <Button
-                        variant="destructive"
-                        onClick={() => handleReportIssue(order._id)}
+                        variant="outline"
+                        onClick={() => setActiveOrderId(null)}
+                        disabled={isSubmitting}
                       >
-                        Submit Report
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="default"
+                        onClick={() => handleReportIssue(order._id)}
+                        disabled={!issueDescription.trim() || isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="animate-spin mr-2">⚪</span>
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit Issue"
+                        )}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-              )}
+              )}</>
+              <div className="text-lg font-semibold ml-auto">
+                Total: ₹{order.totalAmount.toLocaleString("en-IN")}
+              </div>
+            
+           
             </CardFooter>
           </Card>
         </motion.div>

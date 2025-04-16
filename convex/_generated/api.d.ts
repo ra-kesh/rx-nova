@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as cart from "../cart.js";
+import type * as issues from "../issues.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 
@@ -29,6 +30,7 @@ import type * as products from "../products.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   cart: typeof cart;
+  issues: typeof issues;
   orders: typeof orders;
   products: typeof products;
 }>;

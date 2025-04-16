@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { IssueColumns } from "@/components/ui/data-table/issue-columns";
 
 export const Route = createFileRoute("/admin/")({
   beforeLoad: async ({ context }) => {
@@ -45,16 +46,18 @@ export const Route = createFileRoute("/admin/")({
 function AdminDashboard() {
   const products = useQuery(api.products.list);
   const orders = useQuery(api.orders.list);
+  const issues = useQuery(api.issues.list);
   const updateOrderStatus = useMutation(api.orders.updateStatus);
   const updateProduct = useMutation(api.products.update);
+  const updateIssueStatus = useMutation(api.issues.updateStatus);
 
   console.log({ orders });
 
   // Mock data - replace with actual queries
   const stats = {
     totalProducts: products?.length || 0,
-    pendingOrders: 12,
-    activeIssues: 3,
+    pendingOrders: orders?.filter((o) => o.status === "pending").length || 0,
+    activeIssues: issues?.filter((i) => i.status === "open").length || 0,
     revenue: 145750,
   };
 
@@ -240,8 +243,45 @@ function AdminDashboard() {
                 <CardTitle>Reported Issues</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Issues list implementation */}
-                <p className="text-muted-foreground">No issues to display</p>
+                <DataTable
+                  data={issues || []}
+                  columns={
+                    IssueColumns as Array<{
+                      header: string;
+                      accessorKey:
+                        | "userId"
+                        | "description"
+                        | "status"
+                        | "createdAt"
+                        | "_creationTime"
+                        | "orderId"
+                        | "_id";
+                    }>
+                  }
+                  searchable
+                  searchKeys={["description", "userId"]}
+                  actions={(issue) => (
+                    <Select
+                      value={issue.status}
+                      onValueChange={(value) => {
+                        updateIssueStatus({
+                          issueId: issue._id,
+                          status: value as any,
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </CardContent>
             </Card>
           </TabsContent>

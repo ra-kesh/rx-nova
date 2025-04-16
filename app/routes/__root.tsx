@@ -108,7 +108,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="min-h-screen bg-background font-sans antialiased">
         <BaseLayout className="">{children}</BaseLayout>
         <Toaster />
-
         <Scripts />
       </body>
     </html>
