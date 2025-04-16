@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Container } from "@/components/ui/Container";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";

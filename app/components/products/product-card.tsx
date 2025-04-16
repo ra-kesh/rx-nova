@@ -14,6 +14,8 @@ import { api } from "convex/_generated/api";
 import { Id } from "convex/_generated/dataModel";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@clerk/tanstack-react-start";
+import { useNavigate } from "@tanstack/react-router";
 
 interface ProductCardProps {
   id: Id<"products">;
@@ -38,7 +40,17 @@ export function ProductCard({
   const cartItems = useQuery(api.cart.get) || [];
   const updateCart = useMutation(api.cart.update);
 
+  const { isSignedIn } = useAuth();
+
+  const navigate = useNavigate();
+
   const addToCart = async (productId: Id<"products">, isBox: boolean) => {
+    if (!isSignedIn) {
+      toast.info("Please sign in to add items to your cart");
+      navigate({ to: "/sign-in/$" });
+      return;
+    }
+
     setLoadingType(isBox ? "box" : "unit");
     try {
       const existing = cartItems.find(
