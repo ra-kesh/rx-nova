@@ -4,15 +4,9 @@ import { useMutation, useQuery } from "convex/react";
 import { Container } from "@/components/ui/Container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Package,
-  ShoppingCart,
-  AlertCircle,
-  IndianRupee,
-  Eye,
-} from "lucide-react";
+import { Package, ShoppingCart, AlertCircle, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Power } from "lucide-react";
+import { MoreHorizontal, Power } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,14 +45,12 @@ function AdminDashboard() {
   const updateProduct = useMutation(api.products.update);
   const updateIssueStatus = useMutation(api.issues.updateStatus);
 
-  console.log({ orders });
-
-  // Mock data - replace with actual queries
   const stats = {
     totalProducts: products?.length || 0,
     pendingOrders: orders?.filter((o) => o.status === "pending").length || 0,
     activeIssues: issues?.filter((i) => i.status === "open").length || 0,
-    revenue: 145750,
+    revenue:
+      orders?.reduce((total, order) => total + order.totalAmount, 0) || 0,
   };
 
   if (!products) return <Container>Loading...</Container>;
@@ -73,7 +65,6 @@ function AdminDashboard() {
           </p>
         </div>
 
-        {/* Stats Overview */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
